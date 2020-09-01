@@ -1,0 +1,12 @@
+# python/packaging
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*$py.class
+*.egg-info
+
+# IDE
+.vscode/
+
+# other
+src/static/
