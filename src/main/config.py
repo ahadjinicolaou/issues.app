@@ -2,6 +2,7 @@ import os
 
 
 class Config:
+    # needed for tamper-proof session cookies
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
 

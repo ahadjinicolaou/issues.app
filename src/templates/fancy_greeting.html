@@ -1,0 +1,21 @@
+{% extends "bootstrap/base.html" %}
+
+{# time-sensitive greeting #}
+{% if hour >= 0 and hour < 12 %}
+    {% set greeting = 'Good morning' %}
+{% elif hour >= 12 and hour < 17 %}
+    {% set greeting = 'Good afternoon' %}
+{% else %}
+    {% set greeting = 'Good evening' %}
+{% endif %}
+
+{% block title %}GreetMaster{% endblock %}
+
+{% block content %}
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4">{{ greeting }}, {{ name | capitalize }}.</h1>
+        <p class="lead">GreetMaster™: delivering you the finest of greetings.</p>
+    </div>
+</div>
+{% endblock %}
