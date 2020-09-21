@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {% block head %}
+    <!-- required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- favicon resources -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon-16.png') }}" type="image/png">
+    <link rel="icon" href="{{ url_for('static', filename='favicon-16.png') }}" type="image/png">
+
+    {% block styles %}
+    <!-- bootstrap CSS -->
+    {{ bootstrap.load_css() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}">
+    {% endblock %}
+
+    <title>issues.app</title>
+    {% endblock %}
+</head>
+<body>
+    {% block navbar %}
+    <div class="navbar navbar-fixed-top navbar-expand-md navbar-light bg-light">
+        <!-- app brand -->
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <img class="d-inline-block align-top" src="{{ url_for('static', filename='favicon-32.png') }}" >
+            issues.app
+        </a>
+
+        <!-- hamburger menu -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- items below collapse into the menu above-->
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <!-- logged-in user dropdown -->
+            <ul class="navbar-nav ml-auto order-1">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        &nbsp;{{ user_data['user'] }}&nbsp;<span class="badge badge-secondary">{{ user_data['role'] }}</span><span class="caret"></span>
+                    </a>
+
+                    <div class="dropdown-menu" aria-labelledby="navbarUserDropdown">
+                        <a class="dropdown-item" href="#">Profile</a>
+                        <a class="dropdown-item" href="#">Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Sign out</a>
+                    </div>
+                </li>
+            </ul>
+
+            <!-- major app sections -->
+            <ul class="navbar-nav mr-auto order-0">
+                <li class="nav-item {{ 'active' if is_active['projects'] }}">
+                    <a class="nav-link d-flex align-items-center" href="{{ url_for('projects') }}">
+                        &nbsp;Projects&nbsp;
+                    </a>
+                </li>
+                <li class="nav-item {{ 'active' if is_active['issues'] }}">
+                    <a class="nav-link d-flex align-items-center" href="{{ url_for('issues') }}">
+                        &nbsp;Issues&nbsp;{% if user_data['num_issues'] %}<span class="badge badge-pill badge-primary">{{ user_data['num_issues'] }}</span>{% endif %}
+                    </a>
+                </li>
+                <li class="nav-item {{ 'active' if is_active['messages'] }}">
+                    <a class="nav-link d-flex align-items-center" href="{{ url_for('messages') }}">
+                        &nbsp;Messages&nbsp;{% if user_data['num_messages'] %}<span class="badge badge-pill badge-primary">{{ user_data['num_messages'] }}</span>{% endif %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% endblock %}
+
+    <!-- page content -->
+    {% block content %}{% endblock %}
+
+    {% block scripts %}
+    <!-- optional JavaScript -->
+    {{ bootstrap.load_js() }}
+    {% endblock %}
+</body>
+</html>

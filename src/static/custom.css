@@ -1,0 +1,7 @@
+.navbar {
+    border-bottom: 1px solid lightgray;
+}
+
+#errorBanner {
+    height: 20vh;
+}

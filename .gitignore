@@ -9,4 +9,5 @@ __pycache__/
 .vscode/
 
 # other
-src/static/
+ignore
+src/static/bootstrap-icons.svg
