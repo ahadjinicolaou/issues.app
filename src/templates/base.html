@@ -23,7 +23,7 @@
     {% block navbar %}
     <div class="navbar navbar-fixed-top navbar-expand-md navbar-light bg-light">
         <!-- app brand -->
-        <a class="navbar-brand" href="{{ url_for('index') }}">
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">
             <img class="d-inline-block align-top" src="{{ url_for('static', filename='favicon-32.png') }}" >
             issues.app
         </a>
@@ -54,17 +54,17 @@
             <!-- major app sections -->
             <ul class="navbar-nav mr-auto order-0">
                 <li class="nav-item {{ 'active' if is_active['projects'] }}">
-                    <a class="nav-link d-flex align-items-center" href="{{ url_for('projects') }}">
+                    <a class="nav-link d-flex align-items-center" href="{{ url_for('main.projects') }}">
                         &nbsp;Projects&nbsp;
                     </a>
                 </li>
                 <li class="nav-item {{ 'active' if is_active['issues'] }}">
-                    <a class="nav-link d-flex align-items-center" href="{{ url_for('issues') }}">
+                    <a class="nav-link d-flex align-items-center" href="{{ url_for('main.issues') }}">
                         &nbsp;Issues&nbsp;{% if user_data['num_issues'] %}<span class="badge badge-pill badge-primary">{{ user_data['num_issues'] }}</span>{% endif %}
                     </a>
                 </li>
                 <li class="nav-item {{ 'active' if is_active['messages'] }}">
-                    <a class="nav-link d-flex align-items-center" href="{{ url_for('messages') }}">
+                    <a class="nav-link d-flex align-items-center" href="{{ url_for('main.messages') }}">
                         &nbsp;Messages&nbsp;{% if user_data['num_messages'] %}<span class="badge badge-pill badge-primary">{{ user_data['num_messages'] }}</span>{% endif %}
                     </a>
                 </li>
