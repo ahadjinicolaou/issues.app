@@ -29,24 +29,26 @@
         </a>
 
         <!-- hamburger menu -->
+        {% if current_user.is_authenticated %}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         
-        <!-- items below collapse into the menu above-->
+        <!-- items below collapse into the menu above -->
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <!-- logged-in user dropdown -->
             <ul class="navbar-nav ml-auto order-1">
+                
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        &nbsp;{{ user_data['user'] }}&nbsp;<span class="badge badge-secondary">{{ user_data['role'] }}</span><span class="caret"></span>
+                        &nbsp;{{ user_data['username'] }}&nbsp;<span class="badge badge-secondary">{{ user_data['role'] }}</span><span class="caret"></span>
                     </a>
 
-                    <div class="dropdown-menu" aria-labelledby="navbarUserDropdown">
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarUserDropdown">
                         <a class="dropdown-item" href="#">Profile</a>
                         <a class="dropdown-item" href="#">Settings</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Sign out</a>
+                        <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Sign out</a>
                     </div>
                 </li>
             </ul>
@@ -70,11 +72,33 @@
                 </li>
             </ul>
         </div>
+        {% else %}
+        <ul class="navbar-nav ml-auto order-1">
+            <li class="nav-item active">
+                <a class="nav-link d-flex align-items-center" href="{{ url_for('auth.login') }}">
+                    &nbsp;Sign in&nbsp;
+                </a>
+            </li>
+        </ul>
+        {% endif %}
+
+
     </div>
     {% endblock %}
 
+
+
     <!-- page content -->
-    {% block content %}{% endblock %}
+    {% block content %}
+        {% for message in get_flashed_messages() %}
+            <div class="alert alert-warning">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{ message }}
+            </div>
+        {% endfor %}
+
+        {% block page_content %}{% endblock %}
+    {% endblock %}
 
     {% block scripts %}
     <!-- optional JavaScript -->

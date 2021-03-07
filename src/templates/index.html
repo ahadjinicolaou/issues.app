@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            {% if current_user.is_authenticated %}
+                <h1>Welcome, {{ current_user.username}}.</h1>
+            {% else %}
+                <h1>issues.app</h1>
+                <p>Track that issue. Track it good.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

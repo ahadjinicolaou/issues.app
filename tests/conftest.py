@@ -1,7 +1,6 @@
 from src import create_app
 import pytest
 
-
 # app instance configured for testing
 @pytest.fixture
 def app():

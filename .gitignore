@@ -9,5 +9,6 @@ __pycache__/
 .vscode/
 
 # other
+*.sqlite
 ignore
 src/static/bootstrap-icons.svg
