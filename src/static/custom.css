@@ -1,7 +1,20 @@
 .navbar {
-    border-bottom: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
 }
 
 #errorBanner {
-    height: 20vh;
+  height: 20vh;
+}
+
+table.table-sm > thead > tr > th {
+  border-top: none;
+  border-bottom: none;
+}
+
+table.table-sm {
+  font-size: 0.8em;
+}
+
+body {
+  background-color: #fafafa;
 }
