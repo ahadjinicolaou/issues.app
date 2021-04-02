@@ -73,9 +73,9 @@
               aria-haspopup="true"
               aria-expanded="false"
             >
-              &nbsp;{{ user_data['username'] }}&nbsp;<span
+              &nbsp;{{ user.username }}&nbsp;<span
                 class="badge badge-secondary"
-                >{{ user_data['role'] }}</span
+                >{{ user.role }}</span
               ><span class="caret"></span>
             </a>
 
@@ -95,7 +95,7 @@
 
         <!-- major app sections -->
         <ul class="navbar-nav mr-auto order-0">
-          <li class="nav-item {{ 'active' if is_active['projects'] }}">
+          <li class="nav-item {{ 'active' if navdata['active_page'] =='projects' }}">
             <a
               class="nav-link d-flex align-items-center"
               href="{{ url_for('main.projects') }}"
@@ -103,25 +103,25 @@
               &nbsp;Projects&nbsp;
             </a>
           </li>
-          <li class="nav-item {{ 'active' if is_active['issues'] }}">
+          <li class="nav-item {{ 'active' if navdata['active_page'] == 'issues' }}">
             <a
               class="nav-link d-flex align-items-center"
               href="{{ url_for('main.issues') }}"
             >
-              &nbsp;Issues&nbsp;{% if user_data['num_issues'] %}<span
-                class="badge badge-pill badge-primary"
-                >{{ user_data['num_issues'] }}</span
+              &nbsp;Issues&nbsp;{% if navdata['num_issues'] %}<span
+                class="badge badge-pill badge-{{ 'primary' if navdata['num_issues'] else 'secondary' }}"
+                >{{ navdata['num_issues'] }}</span
               >{% endif %}
             </a>
           </li>
-          <li class="nav-item {{ 'active' if is_active['messages'] }}">
+          <li class="nav-item {{ 'active' if navdata['active_page'] == 'messages' }}">
             <a
               class="nav-link d-flex align-items-center"
               href="{{ url_for('main.messages') }}"
             >
-              &nbsp;Messages&nbsp;{% if user_data['num_messages'] %}<span
+              &nbsp;Messages&nbsp;{% if navdata['num_messages'] %}<span
                 class="badge badge-pill badge-primary"
-                >{{ user_data['num_messages'] }}</span
+                >{{ navdata['num_messages'] }}</span
               >{% endif %}
             </a>
           </li>

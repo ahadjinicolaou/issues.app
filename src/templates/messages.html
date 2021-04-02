@@ -1,12 +1,42 @@
 {% extends "base.html" %}
 
 {% block page_content %}
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <h1>Messages</h1>
-            <p>This test content comes from the messages template.</p>
-        </div>
+<div class="container-fluid p-0">
+    <div class="d-flex row-5" style="border-bottom:1px solid lightgray">
+        {# <div class="col"> #}
+            {# <h1>Messages</h1> #}
+
+
+            {# <div class="d-flex flex-row rounded"> #}
+
+                {# user list #}
+                <div class="col col-3 p-3 col-border chatUserList">
+                    <div class="col col-md-auto">
+                        {% for other in others %}
+                        <div class="row">
+                            <p class="text-sm-left">{{ other.username }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {# user-to-user message box #}
+                <div class="col col-9 mx-0 my-0">
+
+                    {% for message in messages %}
+                    <div class="row justify-content-{{ 'end' if message.created_by == user.id else 'start' }}">
+                        <div class="col col-md-auto m-1 px-3 py-1 {{ 'userMessage' if message.created_by == user.id else 'otherMessage' }}">
+                            <div class="d-flex justify-content-{{ 'end' if message.created_by == user.id else 'start' }} p-0">{{ message.body }}</div>
+                            <div class="d-flex justify-content-{{ 'end' if message.created_by == user.id else 'start' }} p-0">
+                                <h6>{{ message.author.username ~ ' at ' if message.created_by != user.id }} {{ message.created_on.strftime('%b %d, %H:%M') }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            {# </div> #}
+        {# </div> #}
     </div>
 </div>
 {% endblock %}

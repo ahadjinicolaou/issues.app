@@ -1,10 +1,12 @@
 import os
 from src import create_app, db
-from src.models import User
-
+from src.models import Role, User, Issue, Project
+from src.models import perms, status
 app = create_app(os.getenv('ISSUES_CONFIG') or 'default')
 
-# convenience function for flask shell
+
 @app.shell_context_processor
 def make_shell_context():
-    return dict(db=db, User=User)
+    # convenience function for flask shell
+    return dict(db=db, perms=perms, status=status, Role=Role,
+                User=User, Issue=Issue, Project=Project)

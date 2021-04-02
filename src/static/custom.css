@@ -1,20 +1,46 @@
 .navbar {
-  border-bottom: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
 }
 
 #errorBanner {
-  height: 20vh;
+    height: 20vh;
 }
 
 table.table-sm > thead > tr > th {
-  border-top: none;
-  border-bottom: none;
+    border-top: none;
+    border-bottom: none;
 }
 
 table.table-sm {
-  font-size: 0.8em;
+    font-size: 0.8em;
 }
 
 body {
-  background-color: #fafafa;
+    background-color: #fafafa;
 }
+
+.userMessage {
+    border: 1px solid gray;
+    background-color: rgb(235, 235, 235);
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    border-bottom-left-radius: 1rem;
+}
+
+.otherMessage {
+    border: 1px solid #007BFF;
+    background-color: #daecff;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+}
+
+.chatUserList {
+    border-right: 1px solid lightgray;
+    background-color: #fff8e1;
+    
+}
+
+/* .chatBox > .col-border:before {
+    border-left: 1px solid red;
+} */

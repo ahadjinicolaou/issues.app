@@ -5,7 +5,47 @@
     <div class="row">
         <div class="col">
             <h1>Projects</h1>
-            <p>This test content comes from the projects template.</p>
+
+        <table class="table table-sm">
+          <thead>
+            <tr class="d-flex">
+              <th class="" style="width:14%">
+                <input type="checkbox" aria-label="Checkbox" />
+
+                &nbsp;ID
+              </th>
+              <th class="" style="width:32%">Summary</th>
+              <th class="" style="width:16%">Client</th>
+              <th class="" style="width:12%">Status</th>
+              <th class="" style="width:13%">Created</th>
+              <th class="" style="width:13%">Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            {% for project in projects %}
+            <tr class="d-flex">
+              <td class="" style="width:14%">
+                <input
+                  type="checkbox"
+                  aria-label="Checkbox for following text input"
+                />
+
+                &nbsp;{{ project.code }}
+              </td>
+              <td class="" style="width:32%">{{ project.title}}</td>
+              <td class="" style="width:16%">{{ project.client }}</td>
+              <td class="" style="width:12%">{{ project.status }}</td>
+              <td class="" style="width:12%">{{ project.created_on.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td class="" style="width:13%">{{ project.updated_on.strftime('%Y-%m-%d %H:%M') if project.updated_on is not none }}</td>
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+
+
+
         </div>
     </div>
 </div>
