@@ -1,59 +1,58 @@
 from . import db, login_manager
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from enum import IntEnum
 
 
-class Permission(dict):
-    def __init__(self):
-        self['NOTHING'] = 0
-        self['CREATE_COMMENTS'] = 1
-        self['CREATE_ISSUES'] = 2
-        self['CREATE_PROJECTS'] = 4
-        self['RESOLVE_ISSUES'] = 8
-        self['ARCHIVE_PROJECTS'] = 16
-        self['EVERYTHING'] = 32
-
-    def __getattr__(self, attr):
-        return self.get(attr)
-
-    def name(self, code):
-        for key, val in self.items():
-            if val == code:
-                return key
-        # complain if code is absent
-        raise KeyError('input is not a valid permission code')
+class Permission(IntEnum):
+    NOTHING = 0
+    MESSAGE_USERS = 1
+    CREATE_COMMENTS = 2
+    CREATE_ISSUES = 4
+    CREATE_PROJECTS = 8
+    RESOLVE_ISSUES = 16
+    ARCHIVE_PROJECTS = 32
+    EVERYTHING = 64
 
 
-class Status(dict):
-    # based on https://developers.google.com/issue-tracker/concepts/issues
-    def __init__(self):
-        self['NEW'] = 1
-        self['ASSIGNED'] = 2
-        self['ACCEPTED'] = 3
-        self['FIXED'] = 4
-        self['RESOLVED'] = 5
-        self['DISMISSED'] = 6
-        self['ACTIVE'] = 7
-        self['INACTIVE'] = 8
-        self['ARCHIVED'] = 9
-
-    def __getitem__(self, key):
-        return super(Status, self).__getitem__(key)
-
-    def __getattr__(self, attr):
-        return self.get(attr)
-
-    def name(self, code):
-        for key, val in self.items():
-            if val == code:
-                return key
-        # complain if code is absent
-        raise KeyError('input is not a valid status code')
+class Status(IntEnum):
+    NEW = 1
+    ASSIGNED = 2
+    ACCEPTED = 3
+    REVIEW = 4
+    RESOLVED = 5
+    DISMISSED = 6
+    ACTIVE = 7
+    INACTIVE = 8
+    ARCHIVED = 9
 
 
-perms = Permission()
-status = Status()
+class Entity(IntEnum):
+    ISSUE = 1
+    PROJECT = 2
+    FORUM = 3
+
+
+class IssueType(IntEnum):
+    BUG = 1
+    TODO = 2
+    REQUEST = 3
+    REPORT = 4
+
+
+class Priority(IntEnum):
+    LOW = 1
+    NORMAL = 2
+    HIGH = 3
+    URGENT = 4
+
+
+class Severity(IntEnum):
+    LOW = 1
+    NORMAL = 2
+    HIGH = 3
+    EXTREME = 4
 
 
 @login_manager.user_loader
@@ -62,47 +61,67 @@ def load_user(user_id):
 
 
 class Role(db.Model):
-    __tablename__ = 'roles'
+    __tablename__ = "roles"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), unique=True, nullable=False)
-    permissions = db.Column(db.Integer, default=perms.NOTHING)
+    permissions = db.Column(db.Integer, default=Permission.NOTHING.value)
+
+    def has_permission(self, permission):
+        return self.permissions & permission.value == permission.value
 
 
 class User(UserMixin, db.Model):
-    __tablename__ = 'users'
+    __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
-    username = db.Column(db.String(32), unique=True,
-                         index=True, nullable=False)
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
+    username = db.Column(db.String(32), unique=True, index=True, nullable=False)
+    full_name = db.Column(db.String(128), nullable=False)
+    company = db.Column(db.String(128))
     email = db.Column(db.String(64), unique=True, index=True, nullable=False)
     password_hash = db.Column(db.String(128))
 
     def __repr__(self):
-        return f'<User {self.username} [{self.role}]>'
+        return f"<User {self.username} [{self.role}]>"
 
     @property
     def role(self):
-        return Role.query.filter_by(id=self.id).first().name
+        return Role.query.filter_by(id=self.role_id).first().name
 
     @property
     def password(self):
-        raise AttributeError('password is not readable')
+        raise AttributeError("password is not readable")
 
     @password.setter
     def password(self, password):
         self.password_hash = generate_password_hash(password)
 
+    def can(self, permission):
+        return self.role.has_permission(permission)
+
+    def is_admin(self):
+        return self.role.has_permission(Permission.EVERYTHING)
+
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
 
+class AnonymousUser(AnonymousUserMixin):
+    def can(self, permission):
+        return false
+
+    def is_admin(self):
+        return false
+
+
+login_manager.anonymous_user = AnonymousUser
+
+
 class Project(db.Model):
-    __tablename__ = 'projects'
+    __tablename__ = "projects"
     id = db.Column(db.Integer, primary_key=True)
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id'))
-    updated_by = db.Column(db.Integer, db.ForeignKey('users.id'))
-    status_code = db.Column(
-        db.Integer, default=status.INACTIVE, nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey("users.id"))
+    updated_by = db.Column(db.Integer, db.ForeignKey("users.id"))
+    status_code = db.Column(db.Integer, default=Status.NEW.value, nullable=False)
     title = db.Column(db.String(256), nullable=False)
     body = db.Column(db.Text)
     code = db.Column(db.String(8), unique=True, nullable=False)
@@ -115,59 +134,103 @@ class Project(db.Model):
 
     @property
     def status(self):
-        return status.name(self.status_code).lower()
+        return Status(self.status_code).name
 
     def __repr__(self):
-        return f'<Project {self.code} [{status.name(self.status_code)}]>'
+        return f"<Project {self.code} [{Status(self.status_code).name}]>"
 
 
 class Issue(db.Model):
-    __tablename__ = 'issues'
+    __tablename__ = "issues"
     id = db.Column(db.Integer, primary_key=True)
-    status_code = db.Column(db.Integer, default=status.NEW, nullable=False)
-    project_code = db.Column(db.String(8), db.ForeignKey(
-        'projects.code'), nullable=False)
-    project_id = db.Column(db.Integer, db.ForeignKey(
-        'projects.id'), nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id'))
-    updated_by = db.Column(db.Integer, db.ForeignKey('users.id'))
-    assigned_to = db.Column(db.Integer, db.ForeignKey('users.id'))
+    type_code = db.Column(db.Integer, nullable=False)
+    status_code = db.Column(db.Integer, default=Status.NEW.value, nullable=False)
+    priority_code = db.Column(db.Integer, default=Priority.NORMAL.value, nullable=False)
+    severity_code = db.Column(db.Integer, default=Severity.NORMAL.value, nullable=False)
+    project_code = db.Column(
+        db.String(8), db.ForeignKey("projects.code"), nullable=False
+    )
+    project_id = db.Column(db.Integer, db.ForeignKey("projects.id"), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    updated_by = db.Column(db.Integer, db.ForeignKey("users.id"))
+    assigned_to = db.Column(db.Integer, db.ForeignKey("users.id"))
     title = db.Column(db.String(256), nullable=False)
-    body = db.Column(db.Text)
+    body = db.Column(db.Text, nullable=False)
     created_on = db.Column(db.DateTime, default=datetime.utcnow)
     updated_on = db.Column(db.DateTime)
 
     assignee = db.relationship(
-        'User', backref='issue_assignee', foreign_keys=[assigned_to])
+        "User", backref="issue_assignee", foreign_keys=[assigned_to]
+    )
     creator = db.relationship(
-        'User', backref='issue_creator', foreign_keys=[created_by])
+        "User", backref="issue_creator", foreign_keys=[created_by]
+    )
+    updater = db.relationship(
+        "User", backref="issue_updater", foreign_keys=[updated_by]
+    )
 
     @property
     def code(self):
-        return f'{self.project_code}-{self.id}'
+        return f"{self.project_code}-{self.id}"
+
+    @property
+    def type(self):
+        return IssueType(self.type_code).name
 
     @property
     def status(self):
-        return status.name(self.status_code).lower()
+        return Status(self.status_code).name
+
+    @property
+    def severity(self):
+        return Severity(self.severity_code).name
+
+    @property
+    def priority(self):
+        return Priority(self.priority_code).name
 
     def __repr__(self):
-        return f'<Issue {self.code} [{self.status}]>'
+        return f"<Issue {self.code} [{Status(self.status_code).name}]>"
 
 
 class Message(db.Model):
-    __tablename__ = 'messages'
+    __tablename__ = "messages"
     id = db.Column(db.Integer, primary_key=True)
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id'))
-    sent_to = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created_by = db.Column(db.Integer, db.ForeignKey("users.id"))
+    sent_to = db.Column(db.Integer, db.ForeignKey("users.id"))
     body = db.Column(db.Text)
     unread = db.Column(db.Boolean, default=True)
     created_on = db.Column(db.DateTime, default=datetime.utcnow)
     updated_on = db.Column(db.DateTime)
 
     author = db.relationship(
-        'User', backref='author', foreign_keys=[created_by])
+        "User", backref="message_author", foreign_keys=[created_by]
+    )
     recipient = db.relationship(
-        'User', backref='recipient', foreign_keys=[sent_to])
+        "User", backref="message_recipient", foreign_keys=[sent_to]
+    )
 
     def __repr__(self):
-        return f'<Message {self.id}>'
+        return f"<Message {self.id}>"
+
+
+class Comment(db.Model):
+    __tablename__ = "comments"
+    id = db.Column(db.Integer, primary_key=True)
+    created_by = db.Column(db.Integer, db.ForeignKey("users.id"))
+    updated_by = db.Column(db.Integer, db.ForeignKey("users.id"))
+    body = db.Column(db.Text)
+    entity_code = db.Column(db.Integer, nullable=False)
+    entity_id = db.Column(db.Integer, nullable=False)
+    created_on = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime)
+
+    author = db.relationship(
+        "User", backref="comment_author", foreign_keys=[created_by]
+    )
+    updater = db.relationship(
+        "User", backref="comment_updater", foreign_keys=[updated_by]
+    )
+
+    def __repr__(self):
+        return f"<Comment {self.id}>"

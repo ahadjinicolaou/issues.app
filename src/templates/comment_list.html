@@ -1,0 +1,74 @@
+{% set COMMENTS_PER_PAGE = 6 %}
+
+{% block comment_list %}
+<h2>Comments</h2>
+<div class="container px-0">
+    {% for comment in comments %}
+    <div class="d-flex p-2 mb-2 rounded-pane">
+
+        <div class="flex-column h-100">
+            <img class="d-inline-block" width="64px"
+                src="{{ url_for('static', filename='/avatars/' + comment.author.username + '.png') }}" />
+        </div>
+
+        &nbsp;
+        <div class="flex-column h-100">
+
+            <a class="dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                &nbsp;{{ comment.author.username }}&nbsp;<span
+                    class="badge badge-secondary">{{ comment.author.role }}</span><span class="caret"></span>
+            </a>&nbsp;&nbsp;<small class="text-muted">{{ moment(comment.created_on).fromNow(refresh=True)
+                if comment.updated_on is none
+                else moment(comment.updated_on).fromNow(refresh=True) }}</small>
+
+            <div class="dropdown-menu" aria-labelledby="navbarUserDropdown">
+                <a class="dropdown-item" href="#">Reply</a>
+                <a class="dropdown-item" href="{{ url_for('.user', username=comment.author.username) }}">Profile</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Report</a>
+            </div>
+            <div class="p-1">{{ comment.body }}</div>
+        </div>
+
+
+
+    </div>
+    {% endfor %}
+
+    <div class="d-flex p-0">
+        {% if comments | length > 0 %}
+        <div class="flex-column h-100">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                    </li>
+
+                    {% set num_pages = (comments | length / COMMENTS_PER_PAGE) | round(0, 'ceil') | int %}
+
+                    {% for n in range(num_pages) %}
+                    <li class="page-item"><a class="page-link" href="#">{{ loop.index }}</a></li>
+                    {% endfor %}
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        &nbsp;
+        {% endif %}
+        <div class="flex-column h-100">
+            <a href="{{ url_for('.add_comment', entity_code=entity_code, entity_id=entity_id) }}" class="btn btn-primary" role="button">Add comment</a>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

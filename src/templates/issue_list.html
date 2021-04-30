@@ -1,0 +1,81 @@
+{% set ISSUES_PER_PAGE = 10 %}
+
+{% if (issues | length) > 0 %}
+    <table class="table table-sm mb-2">
+        <thead>
+            <tr class="row mx-0">
+                <th class="" style="width:14%">
+                    <input type="checkbox" aria-label="Checkbox" />
+                    &nbsp;ID
+                </th>
+                <th class="" style="width:32%">Summary</th>
+                <th class="" style="width:16%">Assignee</th>
+                <th class="" style="width:12%">Status</th>
+                <th class="" style="width:13%">Created</th>
+                <th class="" style="width:13%">Updated</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for issue in issues %}
+            <tr class="row mx-0">
+                <td class="" style="width:14%">
+                    <input type="checkbox" aria-label="Checkbox for following text input" />
+                    &nbsp;<a href="{{ url_for('.issue', code=issue.code) }}">{{ issue.code }}</a>
+                </td>
+                <td class="" style="width:32%">{{ issue.title }}</td>
+                <td class="" style="width:16%"><a
+                        href="{{ url_for('.user', username=issue.assignee.username) }}">{{ issue.assignee.username if issue.assignee is not none }}</a>
+                </td>
+                <td class="" style="width:12%">{{ Status(issue.status_code).name | lower }}</td>
+                <td class="" style="width:13%">{{ moment(issue.created_on).fromNow(refresh=True) }}
+                </td>
+                <td class="" style="width:13%">
+                    {{ moment(issue.updated_on).fromNow(refresh=True) if issue.updated_on is not none }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div><p>Nothing here!</p></div>
+{% endif %}
+
+{# pagination and issue list menu #}
+<div class="container row">
+    {% if issues | length > 0 %}
+    <span class="column">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination mb-0">
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+
+                {% set num_pages = (issues | length / ISSUES_PER_PAGE) | round(0, 'ceil') | int %}
+
+                {% for n in range(num_pages) %}
+                <li class="page-item"><a class="page-link" href="#">{{ loop.index }}</a></li>
+                {% endfor %}
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </span>
+    &nbsp;
+    {% endif %}
+
+    {# Add issue button only appears on a project page #}
+    {% if project is defined %}
+    <span class="column">
+        <a href="{{ url_for('.add_issue', code=project.code) }}" class="btn btn-primary" role="button">Add issue</a>
+    </span>
+    {% endif %}
+</div>
+

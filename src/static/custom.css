@@ -2,11 +2,7 @@
     border-bottom: 1px solid lightgray;
 }
 
-#errorBanner {
-    height: 20vh;
-}
-
-table.table-sm > thead > tr > th {
+table.table-sm>thead>tr>th {
     border-top: none;
     border-bottom: none;
 }
@@ -19,6 +15,37 @@ body {
     background-color: #fafafa;
 }
 
+.danger-text {
+    color: red
+}
+
+.tab-content {
+    background-color: white;
+    border-radius: 0px 0px 4px 4px;
+    border: 1px solid #dee2e6;
+    border-top: 0px;
+}
+
+.rounded-pane {
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.dash-assigned {
+    border: 1px solid #586BA4;
+}
+
+.dash-accepted {
+    border: 1px solid #324376;
+}
+
+.dash-review {
+    border: 1px solid #F1D302;
+}
+
+
+/* message styling */
 .userMessage {
     border: 1px solid gray;
     background-color: rgb(235, 235, 235);
@@ -38,7 +65,7 @@ body {
 .chatUserList {
     border-right: 1px solid lightgray;
     background-color: #fff8e1;
-    
+
 }
 
 /* .chatBox > .col-border:before {

@@ -2,50 +2,36 @@
 
 {% block page_content %}
 <div class="container">
-    <div class="row">
+    <div class="row pt-2">
         <div class="col">
-            <h1>Projects</h1>
+            <h2>Projects</h2>
 
-        <table class="table table-sm">
-          <thead>
-            <tr class="d-flex">
-              <th class="" style="width:14%">
-                <input type="checkbox" aria-label="Checkbox" />
-
-                &nbsp;ID
-              </th>
-              <th class="" style="width:32%">Summary</th>
-              <th class="" style="width:16%">Client</th>
-              <th class="" style="width:12%">Status</th>
-              <th class="" style="width:13%">Created</th>
-              <th class="" style="width:13%">Updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            
-            {% for project in projects %}
-            <tr class="d-flex">
-              <td class="" style="width:14%">
-                <input
-                  type="checkbox"
-                  aria-label="Checkbox for following text input"
-                />
-
-                &nbsp;{{ project.code }}
-              </td>
-              <td class="" style="width:32%">{{ project.title}}</td>
-              <td class="" style="width:16%">{{ project.client }}</td>
-              <td class="" style="width:12%">{{ project.status }}</td>
-              <td class="" style="width:12%">{{ project.created_on.strftime('%Y-%m-%d %H:%M') }}</td>
-              <td class="" style="width:13%">{{ project.updated_on.strftime('%Y-%m-%d %H:%M') if project.updated_on is not none }}</td>
-            </tr>
-            {% endfor %}
-
-          </tbody>
-        </table>
+            {% if projects | length > 0 %}
+            <div class="container px-0 pb-2">
+                <div class="card col">
+                    <div class="card-body">
+                        <h5 class="card-title">By status</h5>
+                        <canvas id="projectStatusChart" width="100%" height="20%"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% block javascript %}
+            <script src="{{ url_for('static', filename='charts.js') }}"></script>
+            <script>
+                plotDoughnutChart(
+                    'projectStatusChart',
+                    {{ status_counts | tojson }},
+                    {{ status_labels | tojson }},
+                    {{ status_colors | tojson }})
+            </script>
+            {% endblock %}
+            {% endif %}
 
 
 
+            <div class="container px-0">
+                {% include "project_list.html" %}
+            </div>
         </div>
     </div>
 </div>

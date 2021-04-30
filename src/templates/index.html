@@ -1,14 +1,123 @@
 {% extends "base.html" %}
 
+{# {% block javascript %}
+{# https://stackoverflow.com/questions/3412275/loading-external-script-with-jinja2-template-directive #}
+<script type="text/javascript">
+    {
+        %
+        include "https://cdn.jsdelivr.net/npm/chart.js" %
+    }
+</script> #}
+
+{# <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.1.1/chart.min.js'></script> #}
+
+
+
 {% block page_content %}
+
 <div class="container">
-    <div class="row">
+    <div class="row pt-2">
         <div class="col">
             {% if current_user.is_authenticated %}
-                <h1>Welcome, {{ current_user.username}}.</h1>
+            <h2>Welcome, {{ current_user.full_name }}.</h2>
+
+            {# <div class="container row">
+                <div class="card col-3">
+                    <div class="card-body">
+                        <h5 class="card-title">All issues</h5>
+                        <canvas id="issuesChart" width="100%" height="100%"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            {% block javascript %}
+            <script src="{{ url_for('static', filename='charts.js') }}"></script>
+            <script>
+            plotIssuesDoughnut([6, 1, 4, 5, 2, 3])
+            //plotIssuesStackedBar([6, 1, 4, 5, 2, 3])
+            //plotIssuesStackedBar([6, 7, 8, 9, 10, 11])
+            </script>
+            {% endblock %} #}
+
+            <div class="card-deck">
+                
+                {% for status in ['ASSIGNED','ACCEPTED','REVIEW'] %}
+                <div class="container col-4 px-0">
+                    <div class="card">
+                        <div class="card-body pt-3 pb-0">
+                            <h5 class="card-title">{{ status | title }}</h5>
+                            {% if status in issues %}
+                                <ul>
+                                {% for issue in issues[status] %}
+                                <li class="card-text"><a href="{{ url_for('.issue', code=issue.code) }}">{{ issue.code }}</a></li>
+                                {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p>Nothing</p>
+                            {% endif %}
+                            
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {# <div class="container col-4">
+                    <div class="card {{ 'invisible' if 'ACCEPTED' not in issues }}">
+                        <div class="card-body">
+                            <h5 class="card-title">Accepted</h5>
+                            <ul>
+                            {% for issue in issues['ACCEPTED'] %}
+                            <li class="card-text"><a href="{{ url_for('.issue', code=issue.code) }}">{{ issue.code }}</a></li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container col-4">
+                    <div class="card {{ 'invisible' if 'FIXED' not in issues }}">
+                        <div class="card-body">
+                            <h5 class="card-title">Fixed</h5>
+                            <ul>
+                            {% for issue in issues['FIXED'] %}
+                            <li class="card-text"><a href="{{ url_for('.issue', code=issue.code) }}">{{ issue.code }}</a></li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div> #}
+            </div>
+
+
+
+            {# <div class="container row">
+                <div class="card">
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">4 active</h5>
+                        <ul>
+                            <li><b>CRYPTO-1</b> &middot; assigned &middot; Jan 4</li>
+                            <li><b>CRYPTO-2</b> &middot; assigned &middot; Jan 4</li>
+                        </ul>
+                    </div>
+                </div>
+                &nbsp;
+                <div class="card">
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">1 inactive</h5>
+                        <ul>
+                            <li><b>CRYPTO-4</b> &middot; dismissed &middot; Jan 4</li>
+                        </ul>
+                    </div>
+                </div>
+            </div> #}
+
+
+
             {% else %}
-                <h1>issues.app</h1>
-                <p>Track that issue. Track it good.</p>
+            <h2>issues.app</h2>
+            <p>Track that issue. Track it good.</p>
             {% endif %}
         </div>
     </div>

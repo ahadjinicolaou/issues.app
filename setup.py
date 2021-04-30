@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='issues',
-    version='0.4',
+    name="issues",
+    version="0.5",
     packages=find_packages(),
     install_requires=[
         "flask",
@@ -14,5 +14,7 @@ setup(
         "flask-login",
         "flask-mail",
         "flask-wtf",
-        "email-validator"],
+        "flask-moment",
+        "email-validator",
+    ],
 )

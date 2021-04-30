@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="container">
+    <div class="row pt-2">
+        <div class="col">
+            <h2>{{ issue.title }}</h2>
+            {# <p class="text-muted"><a href="{{ url_for('.project', code=issue.project_code) }}">{{ issue.project_code }}</a></p>
+            <p>{{ issue.body }}</p>
+            <h6>Assigned to {{ issue.assignee.username }}</h6> #}
+
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a href="#overview" class="nav-link active" data-toggle="tab">Overview</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#activity" class="nav-link" data-toggle="tab">Activity</a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Actions
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ url_for('.edit_issue', id=issue.id) }}">Edit</a>
+                        <a class="dropdown-item" href="#">Archive</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item danger-text" href="#">Delete</a>
+                    </div>
+                </li>
+
+
+
+
+
+                {# <li class="nav-item">
+                    <a href="{{ url_for('.edit_issue', id=issue.id) }}" class="nav-link">✏️ Edit</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('.edit_issue', id=issue.id) }}" class="nav-link">🗑️ Delete</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('.edit_issue', id=issue.id) }}" class="nav-link">🗃️ Archive</a>
+                </li> #}
+            </ul>
+            <div class="tab-content pt-3 pb-0">
+                <div class="tab-pane fade show active" id="overview">
+                    {# type #}
+                    <div class="container row ml-0">
+                        <div class="col-3 text-right">
+                            <span><em>Issue type</em></span>
+                        </div>
+                        <div class="col-8">
+                            <span>{{ issue_emoji + " " + (issue.type | lower) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="container row ml-0">
+                        <div class="col-3 text-right">
+                            <span><em>Issue status</em></span>
+                        </div>
+                        <div class="col-8">
+                            <span>{{ issue.status | lower }}</span>&nbsp;&centerdot;&nbsp;<span
+                                class="text-muted">{{ issue.priority | lower }} priority&nbsp;&centerdot;&nbsp;{{ issue.severity | lower }}
+                                severity</span>
+                        </div>
+                    </div>
+
+                    <div class="container row ml-0">
+                        <div class="col-3 text-right">
+                            <span><em>Created by</em></span>
+                        </div>
+                        <div class="col-8">
+                            <span><a href="{{ url_for('.user', username=issue.creator.username) }}">{{ issue.creator.username }}</a></span>&nbsp;&centerdot;&nbsp;<span
+                                class="text-muted">{{ moment(issue.created_on).format('MMMM Do YYYY, h:mm a') }}
+                                ({{ moment(issue.created_on).fromNow(refresh=True) }})</span>
+                        </div>
+                    </div>
+
+                    {% if issue.updated_by is not none %}
+                    <div class="container row ml-0">
+                        <div class="col-3 text-right">
+                            <span><em>Updated by</em></span>
+                        </div>
+                        <div class="col-8">
+                            <span>{{ issue.updater.username }}</span>&nbsp;&centerdot;&nbsp;<span
+                                class="text-muted">{{ moment(issue.updated_on).format('MMMM Do YYYY, h:mm a') }}
+                                ({{ moment(issue.updated_on).fromNow(refresh=True) }})</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="container row ml-0">
+                        <div class="col-3 text-right">
+                            <span><em>Assigned to</em></span>
+                        </div>
+                        <div class="col-8">
+                            {% if issue.assignee.username %}
+                            <span><a href="{{ url_for('.user', username=issue.assignee.username) }}">{{ issue.assignee.username }}</a></span>
+                            {% else %}
+                            <span>nobody</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+                    <div class="container row ml-0">
+                        <div class="col-3 text-right">
+                            <p><em>Description</em></p>
+                        </div>
+                        <div class="col-8">
+                            <p>{{ issue.body }}</p>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="tab-pane fade" id="activity">
+                    <div class="container">
+                        <p>Activity content</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row pt-2">
+        <div class="col">
+            {% set entity_code = Entity.ISSUE.value %}
+            {% set entity_id = issue.id %}
+            {% include "comment_list.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}

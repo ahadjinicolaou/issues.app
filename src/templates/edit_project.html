@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form %}
+
+{% block page_content %}
+<div class="container">
+    <div class="row pt-2">
+        <div class="col">
+            <h2>Edit project</h2>
+
+            <p>Project {{ project.code }}</p>
+
+            {{ render_form(form) }}
+
+
+        </div>
+    </div>
+</div>
+{% endblock %}

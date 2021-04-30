@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="container">
+    <div class="row pt-2">
+        <div class="col">
+            <h2>{{ project.title }}</h2>
+
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a href="#issues" class="nav-link active" data-toggle="tab">Issues</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#overview" class="nav-link" data-toggle="tab">Overview</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#activity" class="nav-link" data-toggle="tab">Activity</a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Actions
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ url_for('.edit_project', id=project.id) }}">Edit</a>
+                        <a class="dropdown-item" href="#">Archive</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item danger-text" href="#">Delete</a>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-3">
+                <div class="tab-pane fade show active pb-3" id="issues">
+                    <div class="container">
+                        {% include "issue_list.html" %}
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="overview">
+                    <div class="container">
+                        <p>{{ project.body }}</p>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="activity">
+                    <div class="container">
+                        <p>Activity content</p>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+
+    <div class="row pt-2">
+        <div class="col">
+            {% set entity_code = Entity.PROJECT.value %}
+            {% set entity_id = project.id %}
+            {% include "comment_list.html" %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

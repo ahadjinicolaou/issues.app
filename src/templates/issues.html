@@ -1,55 +1,36 @@
-{% extends "base.html" %} {% block page_content %}
+{% extends "base.html" %}
+
+{% block page_content %}
 <div class="container">
-  <div class="row">
-    <div class="col">
-        <h1>Issues</h1>
+    <div class="row pt-2">
+        <div class="col">
+            <h2>Issues</h2>
 
-        {# table head #}
-        {# <div class="table-responsive"> #}
-        <div class="container-fluid p-0">
-            <table class="table table-sm">
-            <thead>
-                <tr class="row mx-0">
-                    <th class="" style="width:14%">
-                        <input type="checkbox" aria-label="Checkbox" />
-                        &nbsp;ID
-                    </th>
-                    <th class="" style="width:32%">Summary</th>
-                    <th class="" style="width:16%">Assignee</th>
-                    <th class="" style="width:12%">Status</th>
-                    <th class="" style="width:13%">Created</th>
-                    <th class="" style="width:13%">Updated</th>
-                </tr>
-            </thead>
-            
-            <tbody>
-                
-                {% for issue in issues %}
-                <tr class="row mx-0">
-                <td class="" style="width:14%">
-                    <input
-                    type="checkbox"
-                    aria-label="Checkbox for following text input"
-                    />
+            {% if issues | length > 0 %}
+            <div class="container px-0 pb-2">
+                <div class="card col">
+                    <div class="card-body">
+                        <h5 class="card-title">By status</h5>
+                        <canvas id="issueStatusChart" width="100%" height="20%"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% block javascript %}
+            <script src="{{ url_for('static', filename='charts.js') }}"></script>
+            <script>
+                plotDoughnutChart(
+                    'issueStatusChart',
+                    {{ status_counts | tojson }},
+                    {{ status_labels | tojson }},
+                    {{ status_colors | tojson }})
+            </script>
+            {% endblock %}
+            {% endif %}
 
-                    &nbsp;{{ issue.code }}
-                </td>
-                <td class="" style="width:32%">{{ issue.title }}</td>
-                <td class="" style="width:16%">{{ issue.assignee.username if issue.assignee is not none }}</td>
-                <td class="" style="width:12%">{{ issue.status }}</td>
-                <td class="" style="width:13%">{{ issue.created_on.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td class="" style="width:13%">{{ issue.updated_on.strftime('%Y-%m-%d %H:%M') if issue.updated_on is not none }}</td>
-                </tr>
-                {% endfor %}
-
-            </tbody>
-            </table>
-
+            <div class="container px-0">
+                {% include "issue_list.html" %}
+            </div>
         </div>
-        {#
-      </div>
-      #}
     </div>
-  </div>
 </div>
 {% endblock %}
