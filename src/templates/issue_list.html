@@ -1,44 +1,46 @@
 {% set ISSUES_PER_PAGE = 10 %}
 
 {% if (issues | length) > 0 %}
-    <table class="table table-sm mb-2">
-        <thead>
-            <tr class="row mx-0">
-                <th class="" style="width:14%">
-                    <input type="checkbox" aria-label="Checkbox" />
-                    &nbsp;ID
-                </th>
-                <th class="" style="width:32%">Summary</th>
-                <th class="" style="width:16%">Assignee</th>
-                <th class="" style="width:12%">Status</th>
-                <th class="" style="width:13%">Created</th>
-                <th class="" style="width:13%">Updated</th>
-            </tr>
-        </thead>
+<table class="table table-sm mb-2">
+    <thead>
+        <tr class="row mx-0">
+            <th class="" style="width:14%">
+                <input type="checkbox" aria-label="Checkbox" />
+                &nbsp;ID
+            </th>
+            <th class="" style="width:32%">Summary</th>
+            <th class="" style="width:16%">Assignee</th>
+            <th class="" style="width:12%">Status</th>
+            <th class="" style="width:13%">Created</th>
+            <th class="" style="width:13%">Updated</th>
+        </tr>
+    </thead>
 
-        <tbody>
-            {% for issue in issues %}
-            <tr class="row mx-0">
-                <td class="" style="width:14%">
-                    <input type="checkbox" aria-label="Checkbox for following text input" />
-                    &nbsp;<a href="{{ url_for('.issue', code=issue.code) }}">{{ issue.code }}</a>
-                </td>
-                <td class="" style="width:32%">{{ issue.title }}</td>
-                <td class="" style="width:16%"><a
-                        href="{{ url_for('.user', username=issue.assignee.username) }}">{{ issue.assignee.username if issue.assignee is not none }}</a>
-                </td>
-                <td class="" style="width:12%">{{ Status(issue.status_code).name | lower }}</td>
-                <td class="" style="width:13%">{{ moment(issue.created_on).fromNow(refresh=True) }}
-                </td>
-                <td class="" style="width:13%">
-                    {{ moment(issue.updated_on).fromNow(refresh=True) if issue.updated_on is not none }}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <tbody>
+        {% for issue in issues %}
+        <tr class="row mx-0">
+            <td class="" style="width:14%">
+                <input type="checkbox" aria-label="Checkbox for following text input" />
+                &nbsp;<a href="{{ url_for('.issue', code=issue.code) }}">{{ issue.code }}</a>
+            </td>
+            <td class="" style="width:32%">{{ issue.type_emoji + " " + issue.title }}</td>
+            <td class="" style="width:16%"><a
+                    href="{{ url_for('.user', username=issue.assignee.username) }}">{{ issue.assignee.username if issue.assignee is not none }}</a>
+            </td>
+            <td class="" style="width:12%">{{ Status(issue.status_code).name | lower }}</td>
+            <td class="" style="width:13%">{{ moment(issue.created_on).fromNow(refresh=True) }}
+            </td>
+            <td class="" style="width:13%">
+                {{ moment(issue.updated_on).fromNow(refresh=True) if issue.updated_on is not none }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% else %}
-    <div><p>Nothing here!</p></div>
+<div>
+    <p>Nothing here!</p>
+</div>
 {% endif %}
 
 {# pagination and issue list menu #}
@@ -76,6 +78,40 @@
     <span class="column">
         <a href="{{ url_for('.add_issue', code=project.code) }}" class="btn btn-primary" role="button">Add issue</a>
     </span>
+    &nbsp;
     {% endif %}
-</div>
 
+
+
+    <span class="column">
+        <select class="custom-select" onchange="location = this.value;">
+            {% if project is defined %}
+            <option {% if selected_issue_type == 'ALL' %} selected="selected" {% endif %}
+                value="{{ url_for('.project', code=project.code, issue_type='ALL') }}">All issues</option>
+            {% for item in IssueType %}
+            <option {% if selected_issue_type == item.name %} selected="selected" {% endif %}
+                value="{{ url_for('.project', code=project.code, issue_type=item.name) }}">
+                {{ IssueType.emojified_name(item) }}</option>
+            {% endfor %}
+            {% else %}
+            <option {% if selected_issue_type == 'ALL' %} selected="selected" {% endif %}
+                value="{{ url_for('.issues', issue_type='ALL') }}">All issues</option>
+            {% for item in IssueType %}
+            <option {% if selected_issue_type == item.name %} selected="selected" {% endif %}
+                value="{{ url_for('.issues', issue_type=item.name) }}">{{ IssueType.emojified_name(item) }}</option>
+            {% endfor %}
+            {% endif %}
+        </select>
+
+        {# <div class="dropdown">
+            <a class="btn btn-secondary dropdown-toggle" href="#" id="issueTypeDropdown" data-toggle="dropdown">All issues</a>
+            
+            <div class="dropdown-menu" aria-labelledby="issueTypeDropdown">
+                <a {% if issue_type == 'ALL' %} selected="selected" {% endif %} class="dropdown-item" href="{{ url_for(request.endpoint, issue_type='ALL') }}">All types</a>
+                {% for item in IssueType %}
+                <a {% if issue_type == item.name %} selected="selected" {% endif %} class="dropdown-item" href="{{ url_for(request.endpoint, issue_type=item.name) }}">{{ IssueType.emojified_name(item) }}</a>
+                {% endfor %}
+            </div>
+        </div>   #}
+    </span>
+</div>

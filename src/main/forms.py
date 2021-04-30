@@ -29,14 +29,25 @@ class AddIssueForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-class EditIssueForm(FlaskForm):
+class EditIssueInfoForm(FlaskForm):
     type_code = SelectField(label="Type")
-    priority = SelectField()
-    severity = SelectField()
     title = StringField(description="Summary of the issue", validators=[DataRequired()])
     body = TextAreaField(
         description="A more detailed description", validators=[DataRequired()]
     )
+    submit = SubmitField("Submit")
+
+
+class EditIssueStatusForm(FlaskForm):
+    status = SelectField(label="Status")
+    priority = SelectField()
+    severity = SelectField()
+    comment = TextAreaField(description="Optional comment regarding the status change")
+    submit = SubmitField("Submit")
+
+
+class AssignIssueForm(FlaskForm):
+    assignee = SelectField(label="Assignee")
     submit = SubmitField("Submit")
 
 

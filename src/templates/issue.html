@@ -18,30 +18,21 @@
                 </li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" href="#"
+                        id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Actions
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{{ url_for('.edit_issue', id=issue.id) }}">Edit</a>
-                        <a class="dropdown-item" href="#">Archive</a>
+                        <a class="dropdown-item" href="{{ url_for('.edit_issue_info', id=issue.id) }}">Edit info</a>
+                        <a class="dropdown-item" href="{{ url_for('.edit_issue_status', id=issue.id) }}">Change
+                            status</a>
+                        <a class="dropdown-item" href="{{ url_for('.assign_issue', id=issue.id) }}">Assign to</a>
                         <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Archive</a>
                         <a class="dropdown-item danger-text" href="#">Delete</a>
                     </div>
                 </li>
 
-
-
-
-
-                {# <li class="nav-item">
-                    <a href="{{ url_for('.edit_issue', id=issue.id) }}" class="nav-link">✏️ Edit</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url_for('.edit_issue', id=issue.id) }}" class="nav-link">🗑️ Delete</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url_for('.edit_issue', id=issue.id) }}" class="nav-link">🗃️ Archive</a>
-                </li> #}
             </ul>
             <div class="tab-content pt-3 pb-0">
                 <div class="tab-pane fade show active" id="overview">
@@ -51,7 +42,7 @@
                             <span><em>Issue type</em></span>
                         </div>
                         <div class="col-8">
-                            <span>{{ issue_emoji + " " + (issue.type | lower) }}</span>
+                            <span>{{ issue.emojified_name }}</span>
                         </div>
                     </div>
 
@@ -61,7 +52,9 @@
                         </div>
                         <div class="col-8">
                             <span>{{ issue.status | lower }}</span>&nbsp;&centerdot;&nbsp;<span
-                                class="text-muted">{{ issue.priority | lower }} priority&nbsp;&centerdot;&nbsp;{{ issue.severity | lower }}
+                                class="{{ 'text-priority-' + issue.priority | lower }}">{{ issue.priority | lower }}
+                                priority</span>&nbsp;&centerdot;&nbsp;<span
+                                class="{{ 'text-priority-' + issue.severity | lower }}">{{ issue.severity | lower }}
                                 severity</span>
                         </div>
                     </div>
@@ -71,7 +64,8 @@
                             <span><em>Created by</em></span>
                         </div>
                         <div class="col-8">
-                            <span><a href="{{ url_for('.user', username=issue.creator.username) }}">{{ issue.creator.username }}</a></span>&nbsp;&centerdot;&nbsp;<span
+                            <span><a
+                                    href="{{ url_for('.user', username=issue.creator.username) }}">{{ issue.creator.username }}</a></span>&nbsp;&centerdot;&nbsp;<span
                                 class="text-muted">{{ moment(issue.created_on).format('MMMM Do YYYY, h:mm a') }}
                                 ({{ moment(issue.created_on).fromNow(refresh=True) }})</span>
                         </div>
@@ -95,11 +89,8 @@
                             <span><em>Assigned to</em></span>
                         </div>
                         <div class="col-8">
-                            {% if issue.assignee.username %}
-                            <span><a href="{{ url_for('.user', username=issue.assignee.username) }}">{{ issue.assignee.username }}</a></span>
-                            {% else %}
-                            <span>nobody</span>
-                            {% endif %}
+                            <span>{% if issue.assignee.username %}<a
+                                    href="{{ url_for('.user', username=issue.assignee.username) }}">{{ issue.assignee.username }}</a>{% else %}nobody{% endif %}</span>
                         </div>
                     </div>
 

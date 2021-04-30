@@ -8,7 +8,9 @@ from .forms import (
     AddProjectForm,
     AddIssueForm,
     EditProjectForm,
-    EditIssueForm,
+    EditIssueInfoForm,
+    EditIssueStatusForm,
+    AssignIssueForm,
     AddCommentForm,
 )
 
@@ -23,12 +25,18 @@ ISSUE_STATUS_COLORS = {
 
 PROJECT_STATUS_COLORS = {"NEW": "#8ACDEA", "ACTIVE": "#586BA4", "INACTIVE": "#CCCCCC"}
 
-ISSUE_TYPE_EMOJIS = {"BUG": "🐛", "TODO": "☑️", "REQUEST": "🎁", "REPORT": "📋"}
+
+ISSUE_PRIORITY_COLORS = {
+    "LOW": "#3f51b5",
+    "NORMAL": "#6c757d",
+    "HIGH": "#fd7e14",
+    "URGENT": "#dc3545",
+}
 
 
 def emojified_issue_type(type_code):
     type = IssueType(type_code)
-    return ISSUE_TYPE_EMOJIS[type.name] + " " + type.name.lower()
+    return IssueType.emoji(type.name) + " " + type.name.lower()
 
 
 @login_required
@@ -120,7 +128,15 @@ def project(code):
     project = Project.query.filter_by(code=code).first()
     if not project:
         abort(404)
-    issues = Issue.query.filter_by(project_id=project.id).all()
+
+    selected_issue_type = request.args.get("issue_type") or "ALL"
+    if selected_issue_type == "ALL":
+        issues = Issue.query.filter_by(project_id=project.id).all()
+    else:
+        issues = Issue.query.filter_by(
+            project_id=project.id, type_code=IssueType[selected_issue_type].value
+        ).all()
+
     comments = Comment.query.filter_by(
         entity_id=project.id, entity_code=Entity.PROJECT.value
     ).all()
@@ -131,9 +147,12 @@ def project(code):
         user=current_user,
         project=project,
         issues=issues,
+        selected_issue_type=selected_issue_type,
+        issue_emojis=IssueType.emojis(),
         comments=comments,
         Status=Status,
         Entity=Entity,
+        IssueType=IssueType,
     )
 
 
@@ -150,8 +169,7 @@ def add_issue():
     # initialize issue form data
     form = AddIssueForm(priority=Priority.NORMAL.value, severity=Severity.NORMAL.value)
     form.type_code.choices = [
-        (item.value, ISSUE_TYPE_EMOJIS[item.name] + " " + item.name.lower())
-        for item in IssueType
+        (item.value, IssueType.emojified_name(item)) for item in IssueType
     ]
     form.priority.choices = [(item.value, item.name.lower()) for item in Priority]
     form.severity.choices = [(item.value, item.name.lower()) for item in Severity]
@@ -165,6 +183,8 @@ def add_issue():
             title=form.title.data,
             body=form.body.data,
             status_code=Status.NEW.value,
+            priority_code=form.priority.data,
+            severity_code=form.severity.data
         )
         db.session.add(i)
         db.session.commit()
@@ -220,7 +240,7 @@ def add_comment():
         entity = Issue.query.filter_by(id=entity_id).first()
         url = url_for(".issue", code=entity.code)
     elif Entity(entity_code) == Entity.PROJECT:
-        entity = Issue.query.filter_by(id=entity_id).first()
+        entity = Project.query.filter_by(id=entity_id).first()
         url = url_for(".project", code=entity.code)
     if not entity:
         abort(404)
@@ -246,35 +266,123 @@ def add_comment():
     )
 
 
-@main.route("/edit_issue", methods=["GET", "POST"])
+@main.route("/edit_issue_info", methods=["GET", "POST"])
 @login_required
-def edit_issue():
+def edit_issue_info():
     issue_id = request.args.get("id", type=int)
     issue = Issue.query.filter_by(id=issue_id).first()
-    print(issue)
 
-    form = EditIssueForm()
-    navdata = get_navbar_data()
+    # initialize issue form data
+    form = EditIssueInfoForm(
+        type_code=issue.type_code,
+        title=issue.title,
+        body=issue.body,
+    )
+    form.type_code.choices = [
+        (item.value, IssueType.emojified_name(item)) for item in IssueType
+    ]
 
     if form.validate_on_submit():
-        pass
+        issue.type_code = form.type_code.data
+        issue.title = form.title.data
+        issue.body = form.body.data
+
+        db.session.commit()
+        flash(f"Issue {issue.code} has been updated.")
+        return redirect(url_for(".issue", code=issue.code))
 
     return render_template(
-        "edit_issue.html", navdata=navdata, user=current_user, form=form, issue=issue
+        "edit_issue_info.html",
+        navdata=get_navbar_data(),
+        user=current_user,
+        form=form,
+        issue=issue,
+    )
+
+
+@main.route("/edit_issue_status", methods=["GET", "POST"])
+@login_required
+def edit_issue_status():
+    issue_id = request.args.get("id", type=int)
+    issue = Issue.query.filter_by(id=issue_id).first()
+
+    # initialize issue form data
+    form = EditIssueStatusForm(
+        status=issue.status_code,
+        priority=issue.priority_code,
+        severity=issue.severity_code,
+    )
+    form.status.choices = [(item.value, item.name) for item in Status]
+    form.priority.choices = [(item.value, item.name.lower()) for item in Priority]
+    form.severity.choices = [(item.value, item.name.lower()) for item in Severity]
+
+    if form.validate_on_submit():
+        issue.status_code = form.status.data
+        issue.priority_code = form.priority.data
+        issue.severity_code = form.severity.data
+        db.session.commit()
+
+        flash(f"Issue {issue.code} has been updated.")
+        return redirect(url_for(".issue", code=issue.code))
+
+    return render_template(
+        "edit_issue_status.html",
+        navdata=get_navbar_data(),
+        user=current_user,
+        form=form,
+        issue=issue,
+    )
+
+
+@main.route("/assign_issue", methods=["GET", "POST"])
+@login_required
+def assign_issue():
+    issue_id = request.args.get("id", type=int)
+    issue = Issue.query.filter_by(id=issue_id).first()
+    id = issue.id or None
+
+    # initialize issue form data
+    form = AssignIssueForm(
+        assignee=id,
+    )
+    form.assignee.choices = User.query.with_entities(User.id, User.username).all()
+
+    if form.validate_on_submit():
+        assignee = User.query.filter_by(id=form.assignee.data).first()
+        issue.assigned_to = form.assignee.data
+        db.session.commit()
+
+        flash(f"Issue {issue.code} has been assigned to {assignee.username}.")
+        return redirect(url_for(".issue", code=issue.code))
+
+    return render_template(
+        "assign_issue.html",
+        navdata=get_navbar_data(),
+        user=current_user,
+        form=form,
+        issue=issue,
     )
 
 
 @main.route("/edit_project", methods=["GET", "POST"])
 @login_required
 def edit_project():
+    navdata = get_navbar_data()
     project_id = request.args.get("id", type=int)
     project = Project.query.filter_by(id=project_id).first()
 
-    form = EditProjectForm()
-    navdata = get_navbar_data()
+    form = EditProjectForm(
+        code=project.code, client=project.client, title=project.title, body=project.body
+    )
 
     if form.validate_on_submit():
-        pass
+        project.code = form.code.data
+        project.client = form.client.data
+        project.title = form.title.data
+        project.body = form.body.data
+        db.session.commit()
+        flash(f"Project {project.code} updated.")
+        return redirect(url_for(".project", code=project.code))
 
     return render_template(
         "edit_project.html",
@@ -288,15 +396,31 @@ def edit_project():
 @main.route("/issues")
 @login_required
 def issues():
+    selected_issue_type = request.args.get("issue_type") or "ALL"
+    if selected_issue_type not in IssueType.names() and selected_issue_type != "ALL":
+        abort(404)
+
     # count the issue statuses
-    issues = Issue.query.all()
-    issue_counts = Counter()
-    for idx, item in enumerate(issues):
-        issue_counts[Status(item.status_code).name] += 1
-    status_labels = list(issue_counts.keys())
-    status_counts = list(issue_counts.values())
-    status_colors = [
-        val for (key, val) in ISSUE_STATUS_COLORS.items() if key in status_labels
+    if selected_issue_type == "ALL":
+        issues = Issue.query.all()
+    else:
+        issues = Issue.query.filter_by(
+            type_code=IssueType[selected_issue_type].value
+        ).all()
+
+    labels, counts, colors = {}, {}, {}
+    labels["status"], counts["status"] = issue_property_counts(
+        issues, property="status"
+    )
+    labels["priority"], counts["priority"] = issue_property_counts(
+        issues, property="priority"
+    )
+
+    colors["status"] = [
+        val for (key, val) in ISSUE_STATUS_COLORS.items() if key in labels["status"]
+    ]
+    colors["priority"] = [
+        val for (key, val) in ISSUE_PRIORITY_COLORS.items() if key in labels["priority"]
     ]
 
     navdata = get_navbar_data(active_page="issues")
@@ -305,11 +429,29 @@ def issues():
         navdata=navdata,
         user=current_user,
         issues=issues,
-        status_counts=status_counts,
-        status_labels=[x.lower() for x in status_labels],
-        status_colors=status_colors,
+        IssueType=IssueType,
+        selected_issue_type=selected_issue_type,
+        issue_emojis=IssueType.emojis(),
+        status_labels=[x.lower() for x in labels["status"]],
+        status_counts=counts["status"],
+        status_colors=colors["status"],
+        priority_labels=[x.lower() for x in labels["priority"]],
+        priority_counts=counts["priority"],
+        priority_colors=colors["priority"],
         Status=Status,
     )
+
+
+def issue_property_counts(issues, property="status"):
+    counts = Counter()
+    for idx, item in enumerate(issues):
+        if property == "status":
+            counts[Status(item.status_code).name] += 1
+        elif property == "priority":
+            counts[Priority(item.priority_code).name] += 1
+        else:
+            raise Exception(f"Unhandled issue property: {property}")
+    return list(counts.keys()), list(counts.values())
 
 
 @main.route("/issues/<string:code>")
@@ -329,7 +471,6 @@ def issue(code):
         user=current_user,
         issue=issue,
         comments=comments,
-        issue_emoji=ISSUE_TYPE_EMOJIS[issue.type],
         Entity=Entity,
     )
 

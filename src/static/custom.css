@@ -19,6 +19,22 @@ body {
     color: red
 }
 
+.text-priority-low {
+    color: #3f51b5
+}
+
+.text-priority-normal {
+    color: #6c757d
+}
+
+.text-priority-high {
+    color: #fd7e14
+}
+
+.text-priority-urgent, .text-priority-extreme {
+    color: #dc3545
+}
+
 .tab-content {
     background-color: white;
     border-radius: 0px 0px 4px 4px;

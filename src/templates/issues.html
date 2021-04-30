@@ -7,11 +7,18 @@
             <h2>Issues</h2>
 
             {% if issues | length > 0 %}
-            <div class="container px-0 pb-2">
-                <div class="card col">
+            <div class="card-deck px-0 pb-2">
+                <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">By status</h5>
-                        <canvas id="issueStatusChart" width="100%" height="20%"></canvas>
+                        <canvas id="issueStatusChart" width="100%" height="30%"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">By priority</h5>
+                        <canvas id="issuePriorityChart" width="100%" height="30%"></canvas>
                     </div>
                 </div>
             </div>
@@ -23,6 +30,11 @@
                     {{ status_counts | tojson }},
                     {{ status_labels | tojson }},
                     {{ status_colors | tojson }})
+                plotDoughnutChart(
+                    'issuePriorityChart',
+                    {{ priority_counts | tojson }},
+                    {{ priority_labels | tojson }},
+                    {{ priority_colors | tojson }})
             </script>
             {% endblock %}
             {% endif %}

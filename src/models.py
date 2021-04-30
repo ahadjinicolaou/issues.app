@@ -34,11 +34,31 @@ class Entity(IntEnum):
     FORUM = 3
 
 
+ISSUE_TYPE_EMOJIS = {"BUG": "🐛", "TODO": "☑️", "REQUEST": "🎁", "REPORT": "📋"}
+
+
 class IssueType(IntEnum):
     BUG = 1
     TODO = 2
     REQUEST = 3
     REPORT = 4
+
+    def emoji(name):
+        return ISSUE_TYPE_EMOJIS[name]
+
+    def emojis():
+        return ISSUE_TYPE_EMOJIS
+
+    def names():
+        return [item.name for item in IssueType]
+
+    def codes():
+        return [item.value for item in IssueType]
+
+    def emojified_name(input):
+        # expects either a type instance or a string
+        name = input.name if isinstance(input, IssueType) else input
+        return IssueType.emoji(name) + " " + name.lower()
 
 
 class Priority(IntEnum):
@@ -174,8 +194,16 @@ class Issue(db.Model):
         return f"{self.project_code}-{self.id}"
 
     @property
-    def type(self):
+    def type_name(self):
         return IssueType(self.type_code).name
+
+    @property
+    def type_emoji(self):
+        return IssueType.emoji(self.type_name)
+
+    @property
+    def emojified_name(self):
+        return IssueType.emojified_name(self.type_name)
 
     @property
     def status(self):

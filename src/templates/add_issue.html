@@ -10,68 +10,6 @@
             <p>Project {{ project.code }}</p>
 
             {{ render_form(form) }}
-            {# <form>
-                <div class="form-group form-row">
-                    <label for="issueTypeDropdown" class="col-sm-2 col-form-label text-right">Type</label>
-                    <div class="col-sm-4">
-                        <select id="issueTypeDropdown" class="form-control">
-                            {% for item in IssueType %}
-                            <option value="{{ item.value }}">{{ issueEmojis[item.name] + " " + (item.name | lower) }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group form-row">
-                    <label for="priorityDropdown" class="col-sm-2 col-form-label text-right">Priority</label>
-                    <div class="col-sm-4">
-                        <select id="priorityDropdown" class="form-control">
-                            {% for item in Priority %}
-                            <option {{"selected" if item.name == "NORMAL"}} value="{{ item.value }}">{{ item.name | lower }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group form-row">
-                    <label for="severityDropdown" class="col-sm-2 col-form-label text-right">Severity</label>
-                    <div class="col-sm-4">
-                        <select id="severityDropdown" class="form-control">
-                            {% for item in Severity %}
-                            <option {{"selected" if item.name == "NORMAL"}} value="{{ item.value }}">{{ item.name | lower }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-
-
-
-                <div class="form-group form-row">
-                    <label for="inputTitle" class="col-sm-2 col-form-label text-right">Title</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" id="inputTitle" placeholder="A brief summary of the issue">
-                    </div>
-                </div>
-                <div class="form-group form-row">
-                    <label for="inputBody" class="col-sm-2 col-form-label text-right">Body</label>
-                    <div class="col-sm-8">
-                        <textarea class="form-control" id="inputBody" rows="4" placeholder="A more detailed description"></textarea>
-                    </div>
-                </div>
-
-                <div class="form-group form-row">
-                    <label class="col-sm-2 col-form-label"></label>
-                    <div class="col-sm-8">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </div>
-                </div>
-
-            </form> #}
-        
-
-
-
         </div>
     </div>
 </div>
